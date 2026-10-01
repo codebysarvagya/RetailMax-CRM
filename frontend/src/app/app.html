@@ -1,0 +1,34 @@
+<div class="app-layout">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="logo-icon">RM</div>
+        <div>
+          <span class="brand-name">RetailMax CRM</span>
+          <span class="brand-edition">Enterprise Suite</span>
+        </div>
+      </div>
+
+      <nav class="nav-bar">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+          <span class="nav-dot"></span>
+          Dashboard
+        </a>
+        <a routerLink="/customers" routerLinkActive="active" class="nav-item">
+          <span class="nav-dot"></span>
+          Customers
+        </a>
+        <a routerLink="/leads" routerLinkActive="active" class="nav-item">
+          <span class="nav-dot"></span>
+          Leads
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Router Outlet for Child Views -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

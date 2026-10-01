@@ -1,0 +1,239 @@
+<div class="customer-container">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div>
+      <span class="badge">CONTACTS</span>
+      <h1>Customer Management</h1>
+      <p class="subtitle">Manage retail customers, contact details, and account records.</p>
+    </div>
+    <button class="secondary-button" type="button" (click)="loadCustomers()" [disabled]="loading || saving || deleting">
+      {{ loading ? 'Loading...' : '↻ Refresh List' }}
+    </button>
+  </header>
+
+  <!-- Notification Alerts -->
+  @if (successMessage) {
+    <div class="alert alert-success">
+      <span class="alert-icon">✓</span>
+      <span>{{ successMessage }}</span>
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      <span class="alert-icon">⚠</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+  <!-- Main Grid: Form + List -->
+  <section class="crud-grid">
+    <!-- Form Card -->
+    <article class="card form-card">
+      <div class="card-header">
+        <h2>{{ editingId === null ? 'Add New Customer' : 'Edit Customer' }}</h2>
+        <span class="card-tag">{{ editingId === null ? 'Create' : 'Edit Mode' }}</span>
+      </div>
+      <p class="card-desc">
+        {{ editingId === null ? 'Enter customer details to register into the CRM database.' : 'Update the selected customer information below.' }}
+      </p>
+
+      <form (ngSubmit)="saveCustomer()" #customerForm="ngForm" class="customer-form">
+        <!-- Name Field -->
+        <div class="form-group">
+          <label for="name">Full Name <span class="required">*</span></label>
+          <input
+            id="name"
+            name="name"
+            [(ngModel)]="form.name"
+            required
+            maxlength="150"
+            placeholder="e.g. Rahul Sharma"
+            class="form-control"
+            #nameInput="ngModel"
+            [disabled]="saving || deleting"
+          />
+          @if (nameInput.invalid && nameInput.touched) {
+            <small class="field-error">Name is required.</small>
+          }
+        </div>
+
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email">Email Address <span class="required">*</span></label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            [(ngModel)]="form.email"
+            required
+            email
+            maxlength="255"
+            placeholder="e.g. rahul@example.com"
+            class="form-control"
+            #emailInput="ngModel"
+            [disabled]="saving || deleting"
+          />
+          @if (emailInput.invalid && emailInput.touched) {
+            <small class="field-error">A valid email address is required.</small>
+          }
+        </div>
+
+        <!-- Phone Field -->
+        <div class="form-group">
+          <label for="phone">Phone Number <span class="optional">(optional)</span></label>
+          <input
+            id="phone"
+            type="tel"
+            name="phone"
+            [(ngModel)]="form.phone"
+            [pattern]="phonePattern"
+            maxlength="30"
+            placeholder="e.g. 9876543210"
+            class="form-control"
+            #phoneInput="ngModel"
+            [disabled]="saving || deleting"
+          />
+          @if (phoneInput.invalid && phoneInput.touched) {
+            <small class="field-error">Please enter a valid phone number (e.g. 9876543210).</small>
+          }
+        </div>
+
+        <!-- Form Buttons -->
+        <div class="form-actions">
+          <button
+            class="primary-button"
+            type="submit"
+            [disabled]="customerForm.invalid || saving || deleting"
+          >
+            {{ saving ? (editingId === null ? 'Saving...' : 'Updating...') : (editingId === null ? 'Save Customer' : 'Update Customer') }}
+          </button>
+
+          @if (editingId !== null) {
+            <button class="cancel-button" type="button" (click)="cancelEdit()" [disabled]="saving || deleting">
+              Cancel
+            </button>
+          }
+        </div>
+      </form>
+    </article>
+
+    <!-- Table Card -->
+    <article class="card list-card">
+      <div class="list-card-header">
+        <div>
+          <h2>Customer Records</h2>
+          <span class="count-badge">
+            {{ filteredCustomers.length }} of {{ customers.length }} Customer{{ customers.length === 1 ? '' : 's' }}
+          </span>
+        </div>
+
+        <!-- Search Box -->
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Search customers..."
+            class="search-input"
+            [disabled]="loading"
+          />
+          @if (searchTerm) {
+            <button class="clear-search-btn" type="button" (click)="clearSearch()" title="Clear search">✕</button>
+          }
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (loading) {
+        <div class="state-container">
+          <div class="spinner"></div>
+          <p>Loading customers...</p>
+        </div>
+      } @else if (customers.length === 0) {
+        <!-- Global Empty State -->
+        <div class="state-container empty-state">
+          <div class="empty-icon">👥</div>
+          <h3>No customers found</h3>
+          <p>Add your first customer to get started.</p>
+        </div>
+      } @else if (filteredCustomers.length === 0) {
+        <!-- Search No Match State -->
+        <div class="state-container empty-state">
+          <div class="empty-icon">🔍</div>
+          <h3>No customers match your search criteria</h3>
+          <p>Try searching with another name, email address, or phone number.</p>
+          <button class="text-link-button" type="button" (click)="clearSearch()">Clear search filter</button>
+        </div>
+      } @else {
+        <!-- Data Table -->
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 70px;">ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th style="width: 140px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (customer of filteredCustomers; track customer.id) {
+                <tr [class.highlighted]="customer.id === editingId">
+                  <td class="id-cell">#{{ customer.id }}</td>
+                  <td class="name-cell">{{ customer.name }}</td>
+                  <td class="email-cell">{{ customer.email }}</td>
+                  <td class="phone-cell">{{ customer.phone || '—' }}</td>
+                  <td class="actions-cell">
+                    <button
+                      class="action-btn edit-btn"
+                      type="button"
+                      title="Edit customer"
+                      (click)="editCustomer(customer)"
+                      [disabled]="saving || deleting"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="action-btn delete-btn"
+                      type="button"
+                      title="Delete customer"
+                      (click)="promptDelete(customer)"
+                      [disabled]="saving || deleting"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+  </section>
+
+  <!-- Delete Confirmation Modal Dialog -->
+  @if (customerToDelete !== null) {
+    <div class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Delete Customer</h3>
+        </div>
+        <p class="modal-message">
+          Are you sure you want to delete <strong>'{{ customerToDelete.name }}'</strong>?<br />
+          This action cannot be undone.
+        </p>
+        <div class="modal-actions">
+          <button class="cancel-button" type="button" (click)="cancelDelete()" [disabled]="deleting">
+            Cancel
+          </button>
+          <button class="action-btn delete-btn-confirm" type="button" (click)="executeDelete()" [disabled]="deleting">
+            {{ deleting ? 'Deleting...' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
