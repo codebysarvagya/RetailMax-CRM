@@ -1,42 +1,63 @@
-HELP.md
+# Compiled Java artifacts & build outputs
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+**/target/
+build/
+**/build/
 
-### IntelliJ IDEA ###
-.idea
+# Maven Wrapper JAR (wrapper scripts and properties are tracked)
+.mvn/wrapper/maven-wrapper.jar
+**/.mvn/wrapper/maven-wrapper.jar
+.maven-cache/
+**/.maven-cache/
+.maven-repository/
+**/.maven-repository/
+
+# Node & Frontend dependencies and build output
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+frontend/dist/
+frontend/.angular/
+.angular/
+**/.angular/
+
+# Environment and local secret files
+.env
+.env.*
+*.env
+*.local
+local.properties
+
+# IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
+out/
+**/out/
 
-### Eclipse ###
-.apt_generated
+# Eclipse
+.apt_generated/
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
-.sts4-cache
+.sts4-cache/
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+# Visual Studio Code
 .vscode/
+**/.vscode/
 
-### Local environment ###
-.env
-.maven-cache/
-.maven-repository/
-frontend/dist/
-frontend/.angular/
-frontend/node_modules/
-
+# OS-generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
